@@ -39,7 +39,7 @@ namespace kaleidoscope {
 namespace language {
 
 enum {
-  DE_FIRST = kaleidoscope::ranges::KALEIDOSCOPE_SAFE_START,
+  DE_FIRST = kaleidoscope::ranges::DE_FIRST,
   DE_A_UMLAUT = DE_FIRST,
   DE_O_UMLAUT,
   DE_U_UMLAUT,

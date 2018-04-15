@@ -91,7 +91,7 @@ void German::typeUmlaut(Key key) {
 }
 
 void German::typeEszett() {
-  tapKey(Key_RightAlt); // needed?
+  tapKey(Key_RightAlt);
 
   bool left_shift_active = kaleidoscope::hid::wasModifierKeyActive(Key_LeftShift);
   if (left_shift_active) {
@@ -103,9 +103,12 @@ void German::typeEszett() {
     releaseKey(Key_RightShift);
   }
 
+  // macOS
   pressKey(Key_RightAlt);
   tapKey(Key_S);
   releaseKey(Key_RightAlt);
+
+  // ToDo handle other operating systems
 
   if (left_shift_active) {
     pressKey(Key_LeftShift);
