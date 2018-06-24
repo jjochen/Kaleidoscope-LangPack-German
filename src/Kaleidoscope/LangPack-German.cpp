@@ -24,25 +24,33 @@
 
 
 #include <Kaleidoscope-LangPack-German.h>
+#include <Kaleidoscope-OneShot.h>
+
+namespace kaleidoscope {
+namespace language {
+namespace {
+
+static void pressKey(Key key);
+static void releaseKey(Key key);
+static void tapKey(Key key);
+static void typeUmlaut(Key key);
+static void typeEszett();
+
+} // namespace
+} // namespace language
+} // namespace kaleidoscope
 
 
 namespace kaleidoscope {
 namespace language {
 
-German::German(void) {
-}
-
-void German::begin(void) {
-  Kaleidoscope.useEventHandlerHook(eventHandlerHook);
-}
-
-Key German::eventHandlerHook(Key mapped_key, byte row, byte col, uint8_t key_state) {
+EventHandlerResult German::onKeyswitchEvent(Key &mapped_key, byte row, byte col, uint8_t keyState) {
   if (mapped_key.raw < DE_FIRST || mapped_key.raw > DE_LAST) {
-    return mapped_key;
+    return EventHandlerResult::OK;
   }
 
-  if (!keyToggledOn(key_state)) {
-    return Key_NoKey;
+  if (!keyToggledOn(keyState)) {
+    return EventHandlerResult::EVENT_CONSUMED;
   }
 
   switch (mapped_key.raw) {
@@ -60,11 +68,29 @@ Key German::eventHandlerHook(Key mapped_key, byte row, byte col, uint8_t key_sta
     break;
   }
 
-  return Key_NoKey;
+  return EventHandlerResult::OK;
 }
 
-void German::typeUmlaut(Key key) {
-  tapKey(Key_RightAlt); // needed?
+
+namespace {
+
+void pressKey(Key key) {
+  kaleidoscope::hid::pressKey(key);
+  kaleidoscope::hid::sendKeyboardReport();
+}
+
+void releaseKey(Key key) {
+  kaleidoscope::hid::releaseKey(key);
+  kaleidoscope::hid::sendKeyboardReport();
+}
+
+void tapKey(Key key) {
+  pressKey(key);
+  releaseKey(key);
+}
+
+void typeUmlaut(Key key) {
+  tapKey(Key_RightAlt); // ???
 
   bool left_shift_active = kaleidoscope::hid::wasModifierKeyActive(Key_LeftShift);
   if (left_shift_active) {
@@ -90,8 +116,8 @@ void German::typeUmlaut(Key key) {
   tapKey(key);
 }
 
-void German::typeEszett() {
-  tapKey(Key_RightAlt);
+void typeEszett() {
+  tapKey(Key_RightAlt); // ???
 
   bool left_shift_active = kaleidoscope::hid::wasModifierKeyActive(Key_LeftShift);
   if (left_shift_active) {
@@ -118,22 +144,9 @@ void German::typeEszett() {
   }
 }
 
-void German::pressKey(Key key) {
-  kaleidoscope::hid::pressKey(key);
-  kaleidoscope::hid::sendKeyboardReport();
-}
+} // namespace
+} // namespace language
+} // namespacce kaleidoscope
 
-void German::releaseKey(Key key) {
-  kaleidoscope::hid::releaseKey(key);
-  kaleidoscope::hid::sendKeyboardReport();
-}
-
-void German::tapKey(Key key) {
-  pressKey(key);
-  releaseKey(key);
-}
-
-}
-}
 
 kaleidoscope::language::German German;

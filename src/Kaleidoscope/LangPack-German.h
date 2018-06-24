@@ -48,21 +48,10 @@ enum {
 };
 
 
-class German : public KaleidoscopePlugin {
+class German : public kaleidoscope::Plugin {
  public:
-  German(void);
-
-  void begin(void) final;
-
-  static void typeUmlaut(Key key);
-  static void typeEszett();
-
- private:
-  static Key eventHandlerHook(Key mapped_key, byte row, byte col, uint8_t key_state);
-
-  static void pressKey(Key key);
-  static void releaseKey(Key key);
-  static void tapKey(Key key);
+  German(void) {};
+  EventHandlerResult onKeyswitchEvent(Key &mapped_key, byte row, byte col, uint8_t keyState);
 };
 
 }
