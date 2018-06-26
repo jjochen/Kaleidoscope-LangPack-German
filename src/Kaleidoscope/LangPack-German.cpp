@@ -30,11 +30,12 @@ namespace kaleidoscope {
 namespace language {
 namespace {
 
+static bool modifierActive(Key modifierKey);
 static void pressKey(Key key);
 static void releaseKey(Key key);
 static void tapKey(Key key);
-static void typeUmlaut(Key key);
-static void typeEszett();
+static void modifyForUmlaut();
+static void modifyForEszett();
 
 } // namespace
 } // namespace language
@@ -53,35 +54,48 @@ EventHandlerResult German::onKeyswitchEvent(Key &mapped_key, byte row, byte col,
     return EventHandlerResult::EVENT_CONSUMED;
   }
 
+  Key deKey;
+  deKey.flags = KEY_FLAGS;
+
   switch (mapped_key.raw) {
-  case DE_A_UMLAUT:
-    typeUmlaut(Key_A);
+  case DE_AUMLAUT:
+    modifyForUmlaut();
+    deKey.keyCode = Key_A.keyCode;
     break;
-  case DE_O_UMLAUT:
-    typeUmlaut(Key_A);
+  case DE_OUMLAUT:
+    modifyForUmlaut();
+    deKey.keyCode = Key_O.keyCode;
     break;
-  case DE_U_UMLAUT:
-    typeUmlaut(Key_A);
+  case DE_UUMLAUT:
+    modifyForUmlaut();
+    deKey.keyCode = Key_U.keyCode;
     break;
   case DE_ESZETT:
-    typeUmlaut(Key_A);
+    modifyForEszett();
+    deKey.keyCode = Key_S.keyCode;
+    deKey.flags |= LALT_HELD;
     break;
   }
 
+  mapped_key = deKey;
   return EventHandlerResult::OK;
 }
 
-
 namespace {
 
+bool modifierActive(Key modifierKey) {
+  return hid::wasModifierKeyActive(modifierKey) ||
+         ::OneShot.isModifierActive(modifierKey);
+}
+
 void pressKey(Key key) {
-  kaleidoscope::hid::pressKey(key);
-  kaleidoscope::hid::sendKeyboardReport();
+  hid::pressKey(key);
+  hid::sendKeyboardReport();
 }
 
 void releaseKey(Key key) {
-  kaleidoscope::hid::releaseKey(key);
-  kaleidoscope::hid::sendKeyboardReport();
+  hid::releaseKey(key);
+  hid::sendKeyboardReport();
 }
 
 void tapKey(Key key) {
@@ -89,22 +103,21 @@ void tapKey(Key key) {
   releaseKey(key);
 }
 
-void typeUmlaut(Key key) {
-  tapKey(Key_RightAlt); // ???
+void modifyForUmlaut() {
+  bool left_shift_active = modifierActive(Key_LeftShift);
+  bool right_shift_active = modifierActive(Key_RightShift);
 
-  bool left_shift_active = kaleidoscope::hid::wasModifierKeyActive(Key_LeftShift);
   if (left_shift_active) {
     releaseKey(Key_LeftShift);
   }
 
-  bool right_shift_active = kaleidoscope::hid::wasModifierKeyActive(Key_RightShift);
   if (right_shift_active) {
     releaseKey(Key_RightShift);
   }
 
-  pressKey(Key_RightAlt);
+  pressKey(Key_LeftAlt);
   tapKey(Key_U);
-  releaseKey(Key_RightAlt);
+  releaseKey(Key_LeftAlt);
 
   if (left_shift_active) {
     pressKey(Key_LeftShift);
@@ -112,35 +125,18 @@ void typeUmlaut(Key key) {
   if (right_shift_active) {
     pressKey(Key_RightShift);
   }
-
-  tapKey(key);
 }
 
-void typeEszett() {
-  tapKey(Key_RightAlt); // ???
+void modifyForEszett() {
+  bool left_shift_active = modifierActive(Key_LeftShift);
+  bool right_shift_active = modifierActive(Key_RightShift);
 
-  bool left_shift_active = kaleidoscope::hid::wasModifierKeyActive(Key_LeftShift);
   if (left_shift_active) {
     releaseKey(Key_LeftShift);
   }
 
-  bool right_shift_active = kaleidoscope::hid::wasModifierKeyActive(Key_RightShift);
   if (right_shift_active) {
     releaseKey(Key_RightShift);
-  }
-
-  // macOS
-  pressKey(Key_RightAlt);
-  tapKey(Key_S);
-  releaseKey(Key_RightAlt);
-
-  // ToDo handle other operating systems
-
-  if (left_shift_active) {
-    pressKey(Key_LeftShift);
-  }
-  if (right_shift_active) {
-    pressKey(Key_RightShift);
   }
 }
 
