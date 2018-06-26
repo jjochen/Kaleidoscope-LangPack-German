@@ -81,6 +81,7 @@ EventHandlerResult German::onKeyswitchEvent(Key &mapped_key, byte row, byte col,
   return EventHandlerResult::OK;
 }
 
+
 namespace {
 
 bool modifierActive(Key modifierKey) {

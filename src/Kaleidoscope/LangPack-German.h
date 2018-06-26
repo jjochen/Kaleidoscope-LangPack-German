@@ -28,11 +28,11 @@
 #include <Kaleidoscope-Ranges.h>
 
 
-#define DE_Key(n) (Key){ .raw = kaleidoscope::language::DE_ ## n}
-#define Key_AUmlaut DE_Key(AUMLAUT) // Ä/ä
-#define Key_OUmlaut DE_Key(OUMLAUT) // Ö/ö
-#define Key_UUmlaut DE_Key(UUMLAUT) // Ü/ü
-#define Key_Eszett DE_Key(ESZETT) // ß
+#define DE_KEY(n) (Key){ .raw = kaleidoscope::language::DE_ ## n}
+#define Key_AUmlaut DE_KEY(AUMLAUT) // Ä/ä
+#define Key_OUmlaut DE_KEY(OUMLAUT) // Ö/ö
+#define Key_UUmlaut DE_KEY(UUMLAUT) // Ü/ü
+#define Key_Eszett DE_KEY(ESZETT) // ß
 
 namespace kaleidoscope {
 namespace language {
