@@ -50,7 +50,7 @@ enum {
 class German : public kaleidoscope::Plugin {
  public:
   German(void) {};
-  EventHandlerResult onKeyswitchEvent(Key &mapped_key, byte row, byte col, uint8_t keyState);
+  EventHandlerResult onKeyswitchEvent(Key &mapped_key, KeyAddr key_addr, uint8_t keyState);
 };
 
 }

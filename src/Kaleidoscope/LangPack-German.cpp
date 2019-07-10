@@ -45,7 +45,7 @@ static void modifyForEszett();
 namespace kaleidoscope {
 namespace language {
 
-EventHandlerResult German::onKeyswitchEvent(Key &mapped_key, byte row, byte col, uint8_t keyState) {
+EventHandlerResult German::onKeyswitchEvent(Key &mapped_key, KeyAddr key_addr, uint8_t keyState) {
   if (mapped_key.raw < DE_FIRST || mapped_key.raw > DE_LAST) {
     return EventHandlerResult::OK;
   }
