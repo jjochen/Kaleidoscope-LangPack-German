@@ -46,7 +46,7 @@ namespace kaleidoscope {
 namespace language {
 
 EventHandlerResult German::onKeyswitchEvent(Key &mapped_key, KeyAddr key_addr, uint8_t keyState) {
-  if (mapped_key.raw < DE_FIRST || mapped_key.raw > DE_LAST) {
+  if (mapped_key.getRaw() < DE_FIRST || mapped_key.getRaw() > DE_LAST) {
     return EventHandlerResult::OK;
   }
 
@@ -55,25 +55,25 @@ EventHandlerResult German::onKeyswitchEvent(Key &mapped_key, KeyAddr key_addr, u
   }
 
   Key deKey;
-  deKey.flags = KEY_FLAGS;
+  deKey.setFlags(KEY_FLAGS);
 
-  switch (mapped_key.raw) {
+  switch (mapped_key.getRaw()) {
   case DE_AUMLAUT:
     modifyForUmlaut();
-    deKey.keyCode = Key_A.keyCode;
+    deKey.setKeyCode(Key_A.getKeyCode());
     break;
   case DE_OUMLAUT:
     modifyForUmlaut();
-    deKey.keyCode = Key_O.keyCode;
+    deKey.setKeyCode(Key_O.getKeyCode());
     break;
   case DE_UUMLAUT:
     modifyForUmlaut();
-    deKey.keyCode = Key_U.keyCode;
+    deKey.setKeyCode(Key_U.getKeyCode());
     break;
   case DE_ESZETT:
     modifyForEszett();
-    deKey.keyCode = Key_S.keyCode;
-    deKey.flags |= LALT_HELD;
+    deKey.setKeyCode(Key_S.getKeyCode());
+    deKey.setFlags(deKey.getFlags() | LALT_HELD);
     break;
   }
 
@@ -85,18 +85,18 @@ EventHandlerResult German::onKeyswitchEvent(Key &mapped_key, KeyAddr key_addr, u
 namespace {
 
 bool modifierActive(Key modifierKey) {
-  return hid::wasModifierKeyActive(modifierKey) ||
+  return Kaleidoscope.hid().keyboard().wasModifierKeyActive(modifierKey) ||
          ::OneShot.isModifierActive(modifierKey);
 }
 
 void pressKey(Key key) {
-  hid::pressKey(key);
-  hid::sendKeyboardReport();
+  Kaleidoscope.hid().keyboard().pressKey(key);
+  Kaleidoscope.hid().keyboard().sendReport();
 }
 
 void releaseKey(Key key) {
-  hid::releaseKey(key);
-  hid::sendKeyboardReport();
+  Kaleidoscope.hid().keyboard().releaseKey(key);
+  Kaleidoscope.hid().keyboard().sendReport();
 }
 
 void tapKey(Key key) {

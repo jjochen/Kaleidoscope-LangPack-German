@@ -28,7 +28,7 @@
 #include <Kaleidoscope-Ranges.h>
 
 
-#define DE_KEY(n) (Key){ .raw = kaleidoscope::language::DE_ ## n}
+#define DE_KEY(n) (Key){ .raw = kaleidoscope::language::DE_ ## n }
 #define Key_AUmlaut DE_KEY(AUMLAUT) // Ä/ä
 #define Key_OUmlaut DE_KEY(OUMLAUT) // Ö/ö
 #define Key_UUmlaut DE_KEY(UUMLAUT) // Ü/ü
