@@ -24,18 +24,14 @@
 
 
 #include <Kaleidoscope-LangPack-German.h>
-#include <Kaleidoscope-OneShot.h>
+#include <Kaleidoscope-Macros.h>
 
 namespace kaleidoscope {
 namespace language {
 namespace {
 
-static bool modifierActive(Key modifierKey);
-static void pressKey(Key key);
-static void releaseKey(Key key);
-static void tapKey(Key key);
+static bool isGermanLanguageKey(Key key);
 static void modifyForUmlaut();
-static void modifyForEszett();
 
 } // namespace
 } // namespace language
@@ -45,99 +41,62 @@ static void modifyForEszett();
 namespace kaleidoscope {
 namespace language {
 
-EventHandlerResult German::onKeyswitchEvent(Key &mapped_key, KeyAddr key_addr, uint8_t keyState) {
-  if (mapped_key.getRaw() < DE_FIRST || mapped_key.getRaw() > DE_LAST) {
+EventHandlerResult German::onKeyEvent(KeyEvent &event) {
+  if (!isGermanLanguageKey(event.key)) {
     return EventHandlerResult::OK;
   }
 
-  if (!keyToggledOn(keyState)) {
+  if (!keyToggledOn(event.state)) {
     return EventHandlerResult::EVENT_CONSUMED;
   }
 
-  Key deKey;
-  deKey.setFlags(KEY_FLAGS);
-
-  switch (mapped_key.getRaw()) {
+  switch (event.key.getRaw()) {
   case DE_AUMLAUT:
     modifyForUmlaut();
-    deKey.setKeyCode(Key_A.getKeyCode());
+    event.key = Key_A;
     break;
   case DE_OUMLAUT:
     modifyForUmlaut();
-    deKey.setKeyCode(Key_O.getKeyCode());
+    event.key = Key_O;
     break;
   case DE_UUMLAUT:
     modifyForUmlaut();
-    deKey.setKeyCode(Key_U.getKeyCode());
+    event.key = Key_U;
     break;
   case DE_ESZETT:
-    modifyForEszett();
-    deKey.setKeyCode(Key_S.getKeyCode());
-    deKey.setFlags(deKey.getFlags() | LALT_HELD);
+    event.key = LALT(Key_S);
     break;
   }
 
-  mapped_key = deKey;
   return EventHandlerResult::OK;
 }
 
-
 namespace {
 
-bool modifierActive(Key modifierKey) {
-  return Kaleidoscope.hid().keyboard().wasModifierKeyActive(modifierKey) ||
-         ::OneShot.isModifierActive(modifierKey);
+bool isGermanLanguageKey(Key key) {
+  return (key.getRaw() >= ranges::DE_FIRST &&
+          key.getRaw() <= ranges::DE_LAST);
 }
 
-void pressKey(Key key) {
-  Kaleidoscope.hid().keyboard().pressKey(key);
-  Kaleidoscope.hid().keyboard().sendReport();
-}
-
-void releaseKey(Key key) {
-  Kaleidoscope.hid().keyboard().releaseKey(key);
-  Kaleidoscope.hid().keyboard().sendReport();
-}
-
-void tapKey(Key key) {
-  pressKey(key);
-  releaseKey(key);
-}
 
 void modifyForUmlaut() {
-  bool left_shift_active = modifierActive(Key_LeftShift);
-  bool right_shift_active = modifierActive(Key_RightShift);
-
-  if (left_shift_active) {
-    releaseKey(Key_LeftShift);
+  KeyEvent shift_events[KeyAddr::upper_limit];
+  int shift_index = 0;
+  for (KeyAddr key_addr : KeyAddr::all()) {
+    Key key = live_keys[key_addr];
+    if (key == Key_LeftShift || key == Key_RightShift) {
+      Runtime.handleKeyEvent(KeyEvent(key_addr, WAS_PRESSED | INJECTED, key));
+      shift_events[shift_index] = KeyEvent(key_addr, IS_PRESSED | INJECTED, key);
+      shift_index++;
+    }
   }
-
-  if (right_shift_active) {
-    releaseKey(Key_RightShift);
-  }
-
-  pressKey(Key_LeftAlt);
-  tapKey(Key_U);
-  releaseKey(Key_LeftAlt);
-
-  if (left_shift_active) {
-    pressKey(Key_LeftShift);
-  }
-  if (right_shift_active) {
-    pressKey(Key_RightShift);
-  }
-}
-
-void modifyForEszett() {
-  bool left_shift_active = modifierActive(Key_LeftShift);
-  bool right_shift_active = modifierActive(Key_RightShift);
-
-  if (left_shift_active) {
-    releaseKey(Key_LeftShift);
-  }
-
-  if (right_shift_active) {
-    releaseKey(Key_RightShift);
+  
+  Runtime.handleKeyEvent(KeyEvent(KeyAddr::none(), IS_PRESSED | INJECTED, LALT(Key_U)));
+  Runtime.handleKeyEvent(KeyEvent(KeyAddr::none(), WAS_PRESSED | INJECTED, LALT(Key_U)));
+  
+  for (int unshift_index = 0; unshift_index < shift_index; unshift_index++) {
+    KeyEvent event = shift_events[unshift_index];
+    Runtime.handleKeyEvent(event);
   }
 }
 

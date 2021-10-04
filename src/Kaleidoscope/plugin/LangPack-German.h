@@ -27,8 +27,7 @@
 #include <Kaleidoscope.h>
 #include <Kaleidoscope-Ranges.h>
 
-
-#define DE_KEY(n) (Key){ .raw = kaleidoscope::language::DE_ ## n }
+#define DE_KEY(n) Key(kaleidoscope::language::DE_ ## n)
 #define Key_AUmlaut DE_KEY(AUMLAUT) // Ä/ä
 #define Key_OUmlaut DE_KEY(OUMLAUT) // Ö/ö
 #define Key_UUmlaut DE_KEY(UUMLAUT) // Ü/ü
@@ -50,7 +49,7 @@ enum {
 class German : public kaleidoscope::Plugin {
  public:
   German(void) {};
-  EventHandlerResult onKeyswitchEvent(Key &mapped_key, KeyAddr key_addr, uint8_t keyState);
+  EventHandlerResult onKeyEvent(KeyEvent &event);
 };
 
 }

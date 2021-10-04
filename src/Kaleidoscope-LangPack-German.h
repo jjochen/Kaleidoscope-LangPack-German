@@ -24,4 +24,4 @@
 
 #pragma once
 
-#include <Kaleidoscope/LangPack-German.h>
+#include <kaleidoscope/plugin/LangPack-German.h>
